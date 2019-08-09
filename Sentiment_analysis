@@ -1,0 +1,38 @@
+# Welcome to this code!
+# In the following lines you will find annotated code for conducting sentiment analysis 
+# to gauge student perception of class activities. This code is heavily based on the
+# process and code available here: https://www.tidytextmining.com/ 
+# This code was developed and used on computers using Windows 10 and MacOS X El Capitan.
+
+# To start, open R, and install and load these packages.
+install.packages("tidytext")
+install.packages("dplyr")
+library(tidytext)
+library(dplyr)
+
+# Next, import text data from each student as a value
+# Lyrics from The Beatles' Hey Jude and A Day in the Life are used as an examples
+Song_1 <- c("Hey Jude, don't make it bad Take a sad song and make it better Remember to let her into your heart Then you can start to make it better")
+Song_2 <- c("I read the news today oh boy About a lucky man who made the grade And though the news was rather sad Well I just had to laugh I saw the photograph ")
+
+# Following, combine values into table
+Songs <- c(Song_1, Song_2)
+
+# Create data frame from table
+Songs_df <- data_frame(line = 1:2, text = Songs)
+
+# Then, unnest tokens word-by-word and remove stop_words
+# Other words can be removed from the analysis using additional anti_join functions
+Tidy_songs <- Songs_df %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)
+
+# Extract sentiments using Bing lexicon
+# Lexicon can be changed by calling a different argument in line 33
+Songs_sent_bing <- Tidy_songs %>%
+  inner_join(get_sentiments("bing")) %>% 
+  count(Song = line %/% 1, sentiment ) %>%
+  spread(sentiment, n, fill = 0) %>%
+  mutate(sentiment = positive-negative)
+
+# Based on this code, Hey Jude includes more negative sentiments than A Day in the Life.
